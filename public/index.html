@@ -1,0 +1,1283 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CTM Pro</title>
+
+  <style>
+    :root{
+      --bg-1: rgb(8,10,14);
+      --bg-2: rgb(12,14,20);
+      --panel: rgba(18,22,29,0.88);
+      --card: rgba(24,29,38,0.96);
+      --line: rgba(84,97,120,0.26);
+      --line-strong: rgba(96,114,145,0.38);
+      --text: rgb(236,241,248);
+      --muted: rgb(140,151,169);
+      --blue: rgb(76,122,255);
+      --blue-dark: rgb(44,84,210);
+      --green: rgb(34,197,94);
+      --green-dark: rgb(22,163,74);
+      --danger-bg: rgba(90,22,22,0.38);
+      --danger-line: rgba(239,68,68,0.38);
+      --danger-text: rgb(255,184,184);
+      --shadow: 0 14px 40px rgba(0,0,0,0.36);
+      --shadow-soft: 0 8px 26px rgba(0,0,0,0.22);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body{
+      margin:0;
+      font-family: Inter, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(76,122,255,0.16), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(34,197,94,0.08), transparent 18%),
+        linear-gradient(180deg, var(--bg-1), var(--bg-2));
+      display:flex;
+      width:100vw;
+      overflow:hidden;
+    }
+
+    #left{
+      width:380px;
+      min-width:380px;
+      height:100vh;
+      border-right:1px solid var(--line);
+      overflow:auto;
+      background: rgba(10,12,17,0.84);
+      backdrop-filter: blur(20px);
+    }
+
+    #right{
+      flex:1;
+      height:100vh;
+      overflow:auto;
+      display:flex;
+      flex-direction:column;
+      background: transparent;
+    }
+
+    .topbar{
+      padding:18px 20px;
+      border-bottom:1px solid var(--line);
+      font-weight:800;
+      font-size:18px;
+      background: rgba(14,17,23,0.82);
+      backdrop-filter: blur(18px);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .box{
+      margin:14px;
+      padding:16px;
+      border:1px solid var(--line);
+      display:grid;
+      gap:10px;
+      background: linear-gradient(180deg, rgba(20,24,31,0.95), rgba(16,19,26,0.95));
+      border-radius:18px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .muted{
+      font-size:12px;
+      color: var(--muted);
+      line-height:1.45;
+    }
+
+    .tiny{
+      font-size:11px;
+      color: var(--muted);
+    }
+
+    input, textarea, select{
+      width:100%;
+      padding:13px 14px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      outline:none;
+      background: rgba(11,14,19,0.92);
+      color: var(--text);
+      font-size:14px;
+      transition: all .18s ease;
+    }
+
+    input::placeholder, textarea::placeholder{
+      color: rgb(110,121,140);
+    }
+
+    input:focus, textarea:focus, select:focus{
+      border-color: rgba(76,122,255,0.55);
+      box-shadow: 0 0 0 4px rgba(76,122,255,0.12);
+    }
+
+    button{
+      padding:12px 14px;
+      cursor:pointer;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background: rgba(22,26,34,0.95);
+      color: var(--text);
+      font-weight:800;
+      transition: all .18s ease;
+    }
+
+    button:hover{
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-soft);
+      background: rgba(26,31,40,0.98);
+    }
+
+    .btnPrimary{
+      background: linear-gradient(180deg, var(--green), var(--green-dark));
+      border-color: rgba(34,197,94,0.35);
+      color: rgb(255,255,255);
+      box-shadow: 0 10px 22px rgba(34,197,94,0.24);
+    }
+
+    .btnBlue{
+      background: linear-gradient(180deg, var(--blue), var(--blue-dark));
+      border-color: rgba(76,122,255,0.34);
+      color: rgb(255,255,255);
+      box-shadow: 0 10px 22px rgba(76,122,255,0.22);
+    }
+
+    .btnGhost{
+      background: rgba(24,29,38,0.95);
+    }
+
+    .btnDanger{
+      background: var(--danger-bg);
+      border-color: var(--danger-line);
+      color: var(--danger-text);
+    }
+
+    .conv{
+      margin:0 14px 12px 14px;
+      padding:14px;
+      cursor:pointer;
+      border:1px solid var(--line);
+      background: linear-gradient(180deg, rgba(22,26,34,0.96), rgba(18,22,29,0.96));
+      display:flex;
+      gap:12px;
+      align-items:center;
+      border-radius:18px;
+      box-shadow: var(--shadow-soft);
+      transition: all .18s ease;
+    }
+
+    .conv:hover{
+      transform: translateY(-1px);
+      border-color: rgba(76,122,255,0.30);
+    }
+
+    .conv.selected{
+      border-color: rgba(76,122,255,0.70);
+      box-shadow:
+        0 0 0 1px rgba(76,122,255,0.35),
+        0 12px 30px rgba(76,122,255,0.18);
+      background: linear-gradient(180deg, rgba(24,31,48,0.98), rgba(19,24,36,0.98));
+    }
+
+    .convMain{ flex:1; min-width:0; }
+
+    .convName{
+      font-weight:800;
+      font-size:14px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .convMeta{
+      font-size:12px;
+      color: var(--muted);
+      margin-top:4px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:5px 10px;
+      border:1px solid var(--line-strong);
+      border-radius:999px;
+      font-size:12px;
+      margin-top:8px;
+      color: rgb(204,214,229);
+      background: rgba(14,17,23,0.92);
+      font-weight:800;
+    }
+
+    .tabs{
+      padding:14px 16px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      gap:10px;
+      background: rgba(14,17,23,0.82);
+      backdrop-filter: blur(18px);
+      position: sticky;
+      top: 61px;
+      z-index: 9;
+    }
+
+    .metrics{
+      padding:18px 18px 0 18px;
+      display:grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap:14px;
+    }
+
+    .metricCard{
+      border:1px solid var(--line);
+      background: linear-gradient(180deg, rgba(20,24,31,0.95), rgba(16,19,26,0.95));
+      border-radius:18px;
+      padding:16px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .metricLabel{
+      font-size:12px;
+      color: var(--muted);
+      margin-bottom:8px;
+      font-weight:700;
+    }
+
+    .metricValue{
+      font-size:28px;
+      font-weight:900;
+      letter-spacing:-0.5px;
+    }
+
+    #panel{
+      padding:18px;
+      display:grid;
+      gap:14px;
+    }
+
+    .cardWrap{
+      border:1px solid var(--line);
+      background: linear-gradient(180deg, rgba(20,24,31,0.95), rgba(16,19,26,0.95));
+      border-radius:22px;
+      padding:18px;
+      box-shadow: var(--shadow);
+    }
+
+    .sectionTitle{
+      font-size:15px;
+      font-weight:900;
+      margin-bottom:4px;
+      color: rgb(242,246,252);
+    }
+
+    pre{
+      white-space:pre-wrap;
+      background: linear-gradient(180deg, rgba(10,13,18,0.94), rgba(14,17,23,0.98));
+      padding:14px;
+      border-radius:18px;
+      border:1px solid var(--line);
+      min-height:70px;
+      margin:0;
+      line-height:1.55;
+      color: rgb(226,232,240);
+    }
+
+    .row{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+
+    .row3{
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap:12px;
+    }
+
+    .kanban{
+      padding:18px;
+    }
+
+    .kanbanGrid{
+      display:grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap:14px;
+      align-items:start;
+    }
+
+    .kanCol{
+      background: linear-gradient(180deg, rgba(20,24,31,0.95), rgba(16,19,26,0.95));
+      border:1px solid var(--line);
+      border-radius:22px;
+      padding:12px;
+      min-height:250px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .kanTitle{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      font-weight:900;
+      font-size:14px;
+      margin-bottom:8px;
+      padding:6px 4px 10px 4px;
+      color: rgb(235,240,248);
+    }
+
+    .countBadge{
+      min-width:28px;
+      height:28px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:0 8px;
+      border-radius:999px;
+      background: rgba(76,122,255,0.14);
+      color: rgb(152,182,255);
+      border:1px solid rgba(76,122,255,0.30);
+      font-size:12px;
+      font-weight:900;
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(24,29,38,0.98), rgba(18,22,29,0.98));
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:12px;
+      margin:10px 0;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .cardName{
+      font-weight:800;
+      margin-bottom:4px;
+    }
+
+    .cardMeta{
+      font-size:12px;
+      color: var(--muted);
+    }
+
+    .cardBtns{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin-top:10px;
+    }
+
+    .task{
+      border:1px solid var(--line);
+      padding:12px;
+      border-radius:18px;
+      margin-bottom:10px;
+      background: linear-gradient(180deg, rgba(24,29,38,0.98), rgba(18,22,29,0.98));
+      box-shadow: var(--shadow-soft);
+    }
+
+    .taskMeta{
+      font-size:12px;
+      color: var(--muted);
+      margin-bottom:8px;
+    }
+
+    .taskBtns{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      margin-top:8px;
+    }
+
+    .chipRow{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .chip{
+      padding:9px 12px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(14,17,23,0.95);
+      color: rgb(213,221,233);
+      font-weight:800;
+      cursor:pointer;
+    }
+
+    .chipActive{
+      border-color: rgba(76,122,255,0.42);
+      color: rgb(126,162,255);
+      background: rgba(76,122,255,0.12);
+      box-shadow: 0 0 0 4px rgba(76,122,255,0.08);
+    }
+
+    .listTools{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .tableRow{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      padding:12px;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background: linear-gradient(180deg, rgba(24,29,38,0.98), rgba(18,22,29,0.98));
+      margin:10px 0;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .tableRowMain{
+      flex:1;
+      min-width:0;
+    }
+
+    .tableRowMain b{
+      display:block;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      font-size:14px;
+      color: rgb(237,242,249);
+    }
+
+    .tableRowMain div{
+      font-size:12px;
+      color: var(--muted);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      margin-top:4px;
+    }
+
+    .history{
+      display:grid;
+      gap:10px;
+    }
+
+    .msg{
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      max-width: 85%;
+      line-height: 1.45;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .msg.inbound{
+      background: rgba(24,29,38,0.98);
+      justify-self:start;
+    }
+
+    .msg.outbound{
+      background: rgba(25,61,39,0.78);
+      border-color: rgba(34,197,94,0.25);
+      justify-self:end;
+    }
+
+    .msgMeta{
+      font-size:11px;
+      color: var(--muted);
+      margin-top:6px;
+    }
+
+    .logs{
+      display:grid;
+      gap:10px;
+    }
+
+    .logItem{
+      padding:12px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background: linear-gradient(180deg, rgba(24,29,38,0.98), rgba(18,22,29,0.98));
+    }
+
+    @media (max-width: 1400px){
+      .metrics{ grid-template-columns: repeat(2, 1fr); }
+      .kanbanGrid{ grid-template-columns: repeat(2, 1fr); }
+      .row3{ grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="left">
+    <div class="topbar">
+      <div>CTM Pro</div>
+      <button class="btnGhost" id="refreshBtn">Refrescar</button>
+    </div>
+
+    <div class="box">
+      <div class="sectionTitle">Filtro por evento</div>
+      <input type="date" id="filterEventDate" />
+      <div class="row">
+        <button id="applyFilter" class="btnBlue">Aplicar</button>
+        <button id="clearFilter">Limpiar</button>
+      </div>
+    </div>
+
+    <div class="box">
+      <div class="sectionTitle">Buscar lead</div>
+      <input type="text" id="searchInput" placeholder="Nombre o número" />
+      <button id="searchBtn" class="btnBlue">Buscar</button>
+    </div>
+
+    <div class="box">
+      <div class="sectionTitle">Importar CSV</div>
+      <div class="muted">Columnas: <b>Nombre</b>, <b>Número</b>, opcional <b>FechaEvento</b></div>
+      <input type="file" id="csvFile" accept=".csv" />
+      <button id="importBtn" class="btnBlue">Importar</button>
+      <div id="importMsg" class="muted"></div>
+    </div>
+
+    <div class="box">
+      <div class="sectionTitle">Agregar lead</div>
+      <input id="new_wa" placeholder="Teléfono con código país (solo dígitos)" />
+      <input id="new_name" placeholder="Nombre (opcional)" />
+      <input id="new_event_date" type="date" />
+      <button id="addLead" class="btnPrimary">Agregar lead</button>
+      <div class="tiny">Ejemplo: 5215512345678</div>
+    </div>
+
+    <div class="box">
+      <div class="sectionTitle">Pendientes</div>
+      <div class="muted">Copia y pega en WhatsApp. Luego marca como enviado.</div>
+      <div id="tasks"></div>
+    </div>
+
+    <div id="convs"></div>
+  </div>
+
+  <div id="right">
+    <div class="topbar">
+      <div id="title">Selecciona un lead</div>
+      <span class="pill" id="selectedPill" style="display:none;">lead seleccionado</span>
+    </div>
+
+    <div class="tabs">
+      <button id="tabLead" class="btnBlue">Lead</button>
+      <button id="tabPipeline" class="btnGhost">Pipeline</button>
+      <button id="tabGestion" class="btnGhost">Gestión</button>
+    </div>
+
+    <div class="metrics">
+      <div class="metricCard">
+        <div class="metricLabel">Total leads</div>
+        <div class="metricValue" id="metric_total">0</div>
+      </div>
+      <div class="metricCard">
+        <div class="metricLabel">Nuevo</div>
+        <div class="metricValue" id="metric_nuevo">0</div>
+      </div>
+      <div class="metricCard">
+        <div class="metricLabel">Interesado</div>
+        <div class="metricValue" id="metric_interesado">0</div>
+      </div>
+      <div class="metricCard">
+        <div class="metricLabel">Confirmado</div>
+        <div class="metricValue" id="metric_confirmado">0</div>
+      </div>
+      <div class="metricCard">
+        <div class="metricLabel">Seguimiento</div>
+        <div class="metricValue" id="metric_seguimiento">0</div>
+      </div>
+    </div>
+
+    <div id="panel">
+      <div class="cardWrap">
+        <div class="sectionTitle">Información del lead</div>
+        <div class="row3">
+          <div>
+            <div class="muted">Estado</div>
+            <select id="status">
+              <option value="nuevo">Nuevo</option>
+              <option value="contactado">Contactado</option>
+              <option value="interesado">Interesado</option>
+              <option value="confirmado">Confirmado</option>
+              <option value="seguimiento">Seguimiento</option>
+            </select>
+          </div>
+          <div>
+            <div class="muted">Fecha de evento</div>
+            <input type="date" id="leadEventDate" />
+          </div>
+          <div>
+            <div class="muted">Acciones</div>
+            <div class="row">
+              <button id="saveStatus" class="btnBlue">Guardar estado</button>
+              <button id="saveEventDate">Guardar fecha</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cardWrap">
+        <div class="sectionTitle">Notas internas</div>
+        <textarea id="notes" rows="4" placeholder="Objeciones, interés, contexto, observaciones..."></textarea>
+        <div class="row">
+          <button id="saveNotes">Guardar notas</button>
+          <button id="startSeq" class="btnPrimary">Iniciar secuencia</button>
+        </div>
+      </div>
+
+      <div class="cardWrap">
+        <div class="sectionTitle">Inteligencia de respuesta</div>
+        <textarea id="lastText" rows="4" placeholder="Pega aquí el último mensaje del lead para que la IA detecte si quiere iniciar o escalar"></textarea>
+
+        <div class="muted" style="margin:4px 0 10px 0;">Elige intención o deja en Auto.</div>
+
+        <div class="chipRow">
+          <div class="chip chipActive" id="chipAuto" onclick="setGoal('unknown')">Auto</div>
+          <div class="chip" id="chipStart" onclick="setGoal('start')">Iniciar</div>
+          <div class="chip" id="chipScale" onclick="setGoal('scale')">Escalar</div>
+          <div class="chip" id="chipPrice" onclick="setGoal('price')">Precio</div>
+          <div class="chip" id="chipLink" onclick="setGoal('link')">Link</div>
+          <div class="chip" id="chipConfirm" onclick="setGoal('confirm')">Confirmó</div>
+        </div>
+
+        <button id="suggest" class="btnBlue" style="margin-top:12px;">Generar respuesta (IA)</button>
+        <pre id="suggestion" style="margin-top:12px;"></pre>
+
+        <div class="row" style="margin-top:12px;">
+          <button id="copySuggestion">Copiar respuesta</button>
+          <button id="sendWA" class="btnPrimary">Enviar por WhatsApp</button>
+        </div>
+      </div>
+
+      <div class="cardWrap">
+        <div class="sectionTitle">Historial de conversación</div>
+        <div class="row" style="margin-bottom:12px;">
+          <button id="refreshHistory">Actualizar historial</button>
+          <button id="addInboundMsg">Agregar inbound manual</button>
+        </div>
+        <div id="history" class="history"></div>
+      </div>
+
+      <div class="cardWrap">
+        <div class="sectionTitle">Logs de IA</div>
+        <button id="refreshAiLogs">Actualizar logs IA</button>
+        <div id="aiLogs" class="logs" style="margin-top:12px;"></div>
+      </div>
+    </div>
+
+    <div id="pipelineView" class="kanban" style="display:none;">
+      <div class="muted" style="margin-bottom:12px;">
+        Visualiza tus leads por etapa y muévelos con los botones.
+      </div>
+
+      <div class="kanbanGrid">
+        <div class="kanCol">
+          <div class="kanTitle">Nuevo <span class="countBadge" id="count_nuevo">0</span></div>
+          <div id="col_nuevo"></div>
+        </div>
+        <div class="kanCol">
+          <div class="kanTitle">Contactado <span class="countBadge" id="count_contactado">0</span></div>
+          <div id="col_contactado"></div>
+        </div>
+        <div class="kanCol">
+          <div class="kanTitle">Interesado <span class="countBadge" id="count_interesado">0</span></div>
+          <div id="col_interesado"></div>
+        </div>
+        <div class="kanCol">
+          <div class="kanTitle">Confirmado <span class="countBadge" id="count_confirmado">0</span></div>
+          <div id="col_confirmado"></div>
+        </div>
+        <div class="kanCol">
+          <div class="kanTitle">Seguimiento <span class="countBadge" id="count_seguimiento">0</span></div>
+          <div id="col_seguimiento"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="gestionView" style="display:none; padding:18px;">
+      <div class="cardWrap">
+        <div class="sectionTitle">Gestión de leads</div>
+        <div class="muted">Selecciona todos o marca algunos y elimínalos.</div>
+
+        <div class="listTools" style="margin-top:12px;">
+          <label style="display:flex; align-items:center; gap:8px; font-weight:800;">
+            <input type="checkbox" id="selectAllLeads" style="width:auto;">
+            Seleccionar todos
+          </label>
+          <button id="deleteSelected" class="btnDanger">Eliminar seleccionados</button>
+          <span id="deleteMsg" class="muted"></span>
+        </div>
+
+        <div id="gestionList" style="margin-top:14px;"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  let selected = null;
+  let goal = "unknown";
+  let cachedConvs = [];
+  let currentEventDate = "";
+  let currentSearch = "";
+
+  function setGoal(g){
+    goal = g;
+    ["Auto","Start","Scale","Price","Link","Confirm"].forEach(k => {
+      const el = document.getElementById("chip" + k);
+      if (el) el.classList.remove("chipActive");
+    });
+
+    if (g === "unknown") document.getElementById("chipAuto").classList.add("chipActive");
+    if (g === "start") document.getElementById("chipStart").classList.add("chipActive");
+    if (g === "scale") document.getElementById("chipScale").classList.add("chipActive");
+    if (g === "price") document.getElementById("chipPrice").classList.add("chipActive");
+    if (g === "link") document.getElementById("chipLink").classList.add("chipActive");
+    if (g === "confirm") document.getElementById("chipConfirm").classList.add("chipActive");
+  }
+  window.setGoal = setGoal;
+
+  function onlyDigits(s){ return String(s || "").replace(/[^\d]/g, ""); }
+
+  function escapeHtml(str){
+    return String(str || "")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  function statusText(s){
+    const m = {
+      nuevo: "Nuevo",
+      contactado: "Contactado",
+      interesado: "Interesado",
+      confirmado: "Confirmado",
+      seguimiento: "Seguimiento"
+    };
+    return m[s] || (s || "nuevo");
+  }
+
+  function fmtDate(ts){
+    if (!ts) return "";
+    try { return new Date(ts).toLocaleString(); } catch { return ""; }
+  }
+
+  async function loadMetrics(){
+    const qs = new URLSearchParams();
+    if (currentEventDate) qs.set("event_date", currentEventDate);
+
+    const res = await fetch(`/api/metrics?${qs.toString()}`);
+    const data = await res.json().catch(()=>({}));
+
+    document.getElementById("metric_total").textContent = data.total || 0;
+    document.getElementById("metric_nuevo").textContent = data.nuevo || 0;
+    document.getElementById("metric_interesado").textContent = data.interesado || 0;
+    document.getElementById("metric_confirmado").textContent = data.confirmado || 0;
+    document.getElementById("metric_seguimiento").textContent = data.seguimiento || 0;
+  }
+
+  const panelView = document.getElementById("panel");
+  const pipelineView = document.getElementById("pipelineView");
+  const gestionView = document.getElementById("gestionView");
+
+  function showLeadView(){
+    panelView.style.display = "grid";
+    pipelineView.style.display = "none";
+    gestionView.style.display = "none";
+    document.getElementById("tabLead").className = "btnBlue";
+    document.getElementById("tabPipeline").className = "btnGhost";
+    document.getElementById("tabGestion").className = "btnGhost";
+  }
+
+  function showPipelineView(){
+    panelView.style.display = "none";
+    pipelineView.style.display = "block";
+    gestionView.style.display = "none";
+    document.getElementById("tabLead").className = "btnGhost";
+    document.getElementById("tabPipeline").className = "btnBlue";
+    document.getElementById("tabGestion").className = "btnGhost";
+    renderPipeline();
+  }
+
+  function showGestionView(){
+    panelView.style.display = "none";
+    pipelineView.style.display = "none";
+    gestionView.style.display = "block";
+    document.getElementById("tabLead").className = "btnGhost";
+    document.getElementById("tabPipeline").className = "btnGhost";
+    document.getElementById("tabGestion").className = "btnBlue";
+    renderGestionList();
+  }
+
+  document.getElementById("tabLead").onclick = showLeadView;
+  document.getElementById("tabPipeline").onclick = showPipelineView;
+  document.getElementById("tabGestion").onclick = showGestionView;
+
+  async function loadConversations(){
+    const qs = new URLSearchParams();
+    if (currentEventDate) qs.set("event_date", currentEventDate);
+    if (currentSearch) qs.set("q", currentSearch);
+
+    const res = await fetch(`/conversations?${qs.toString()}`);
+    cachedConvs = await res.json().catch(()=>[]);
+    renderLeftList();
+    await loadMetrics();
+
+    if (pipelineView.style.display !== "none") renderPipeline();
+    if (gestionView.style.display !== "none") renderGestionList();
+  }
+
+  function renderLeftList(){
+    const box = document.getElementById("convs");
+    box.innerHTML = cachedConvs.map(c => `
+      <div class="conv ${selected === c.wa_id ? 'selected' : ''}" onclick="selectConv('${c.wa_id}')">
+        <div class="convMain">
+          <div class="convName">${escapeHtml(c.name || c.wa_id)}</div>
+          <div class="convMeta">${escapeHtml(c.wa_id)}${c.event_date ? " • " + escapeHtml(c.event_date) : ""}</div>
+          <div class="pill">${escapeHtml(statusText(c.status))}</div>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  async function selectConv(wa_id){
+    selected = wa_id;
+    const conv = cachedConvs.find(x => x.wa_id === wa_id);
+
+    document.getElementById("title").innerText = (conv && (conv.name || conv.wa_id)) || wa_id;
+    document.getElementById("status").value = (conv && conv.status) || "nuevo";
+    document.getElementById("notes").value = (conv && conv.notes) || "";
+    document.getElementById("leadEventDate").value = (conv && conv.event_date) || "";
+    document.getElementById("lastText").value = "";
+    document.getElementById("suggestion").textContent = "";
+
+    const pill = document.getElementById("selectedPill");
+    pill.style.display = "inline-block";
+    pill.textContent = "lead seleccionado";
+
+    setGoal("unknown");
+    renderLeftList();
+    showLeadView();
+    await loadHistory();
+    await loadAiLogs();
+  }
+  window.selectConv = selectConv;
+
+  function renderPipeline(){
+    const buckets = {
+      nuevo: [],
+      contactado: [],
+      interesado: [],
+      confirmado: [],
+      seguimiento: [],
+    };
+
+    for (const c of cachedConvs){
+      const st = c.status || "nuevo";
+      (buckets[st] || buckets.nuevo).push(c);
+    }
+
+    document.getElementById("count_nuevo").textContent = buckets.nuevo.length;
+    document.getElementById("count_contactado").textContent = buckets.contactado.length;
+    document.getElementById("count_interesado").textContent = buckets.interesado.length;
+    document.getElementById("count_confirmado").textContent = buckets.confirmado.length;
+    document.getElementById("count_seguimiento").textContent = buckets.seguimiento.length;
+
+    const makeCard = (c) => `
+      <div class="card">
+        <div class="cardName">${escapeHtml(c.name || c.wa_id)}</div>
+        <div class="cardMeta">${escapeHtml(c.wa_id)}</div>
+        <div class="cardBtns">
+          <button onclick="moveStatus('${c.wa_id}','nuevo')">Nuevo</button>
+          <button onclick="moveStatus('${c.wa_id}','contactado')">Contactado</button>
+          <button onclick="moveStatus('${c.wa_id}','interesado')">Interesado</button>
+          <button onclick="moveStatus('${c.wa_id}','confirmado')">Confirmado</button>
+          <button onclick="moveStatus('${c.wa_id}','seguimiento')">Seguimiento</button>
+          <button class="btnPrimary" onclick="selectConv('${c.wa_id}')">Abrir</button>
+        </div>
+      </div>
+    `;
+
+    document.getElementById("col_nuevo").innerHTML = buckets.nuevo.map(makeCard).join("");
+    document.getElementById("col_contactado").innerHTML = buckets.contactado.map(makeCard).join("");
+    document.getElementById("col_interesado").innerHTML = buckets.interesado.map(makeCard).join("");
+    document.getElementById("col_confirmado").innerHTML = buckets.confirmado.map(makeCard).join("");
+    document.getElementById("col_seguimiento").innerHTML = buckets.seguimiento.map(makeCard).join("");
+  }
+
+  window.moveStatus = async (wa_id, status) => {
+    await fetch(`/api/conversations/${wa_id}/status`, {
+      method: "PATCH",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ status })
+    });
+    await loadConversations();
+  };
+
+  function renderGestionList(){
+    const list = document.getElementById("gestionList");
+    const deleteMsg = document.getElementById("deleteMsg");
+    deleteMsg.textContent = "";
+
+    list.innerHTML = cachedConvs.map(c => `
+      <div class="tableRow">
+        <input class="leadCheck" type="checkbox" data-id="${c.wa_id}" style="width:auto;">
+        <div class="tableRowMain">
+          <b>${escapeHtml(c.name || c.wa_id)}</b>
+          <div>${escapeHtml(c.wa_id)} • ${escapeHtml(statusText(c.status))}${c.event_date ? " • " + escapeHtml(c.event_date) : ""}</div>
+        </div>
+        <button class="btnGhost" onclick="selectConv('${c.wa_id}')">Abrir</button>
+      </div>
+    `).join("");
+
+    document.getElementById("selectAllLeads").checked = false;
+    document.getElementById("selectAllLeads").onchange = () => {
+      document.querySelectorAll(".leadCheck").forEach(cb => cb.checked = document.getElementById("selectAllLeads").checked);
+    };
+  }
+
+  document.getElementById("deleteSelected").onclick = async () => {
+    const ids = Array.from(document.querySelectorAll(".leadCheck:checked")).map(cb => cb.dataset.id);
+    const deleteMsg = document.getElementById("deleteMsg");
+
+    if (!ids.length){
+      deleteMsg.textContent = "Selecciona al menos 1 lead.";
+      return;
+    }
+
+    const ok = confirm(`¿Eliminar ${ids.length} lead(s)?`);
+    if (!ok) return;
+
+    deleteMsg.textContent = "Eliminando...";
+
+    const res = await fetch("/api/leads", {
+      method: "DELETE",
+      headers: { "Content-Type":"application/json" },
+      body: JSON.stringify({ wa_ids: ids })
+    });
+
+    const out = await res.json().catch(()=>({}));
+    if (!res.ok){
+      deleteMsg.textContent = out.error || "Error eliminando.";
+      return;
+    }
+
+    deleteMsg.textContent = `Eliminados: ${out.deleted || ids.length}`;
+    if (ids.includes(selected)) {
+      selected = null;
+      document.getElementById("title").innerText = "Selecciona un lead";
+      document.getElementById("selectedPill").style.display = "none";
+      document.getElementById("suggestion").textContent = "";
+      document.getElementById("history").innerHTML = "";
+      document.getElementById("aiLogs").innerHTML = "";
+    }
+    await loadConversations();
+    renderGestionList();
+  };
+
+  document.getElementById("applyFilter").onclick = async () => {
+    currentEventDate = document.getElementById("filterEventDate").value || "";
+    await loadConversations();
+  };
+
+  document.getElementById("clearFilter").onclick = async () => {
+    currentEventDate = "";
+    document.getElementById("filterEventDate").value = "";
+    await loadConversations();
+  };
+
+  document.getElementById("searchBtn").onclick = async () => {
+    currentSearch = document.getElementById("searchInput").value.trim();
+    await loadConversations();
+  };
+
+  document.getElementById("importBtn").onclick = async () => {
+    const msg = document.getElementById("importMsg");
+    const input = document.getElementById("csvFile");
+    msg.textContent = "";
+    if (!input.files.length) { msg.textContent = "Selecciona un CSV."; return; }
+
+    const fd = new FormData();
+    fd.append("file", input.files[0]);
+
+    msg.textContent = "Importando...";
+    const res = await fetch("/api/import-csv", { method: "POST", body: fd });
+    const out = await res.json().catch(()=>({}));
+
+    if (!res.ok) { msg.textContent = out.error || "Error importando."; return; }
+    msg.textContent = `Importados: ${out.imported || 0}`;
+    input.value = "";
+    await loadConversations();
+  };
+
+  document.getElementById("addLead").onclick = async () => {
+    const wa_id = onlyDigits(document.getElementById("new_wa").value.trim());
+    const name = document.getElementById("new_name").value.trim();
+    const event_date = document.getElementById("new_event_date").value || null;
+    if (!wa_id) return alert("Pon un número válido (solo dígitos).");
+
+    const res = await fetch("/api/leads", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ wa_id, name, event_date })
+    });
+
+    if (!res.ok){
+      const err = await res.json().catch(()=>({}));
+      alert(err.error || "Error agregando lead");
+      return;
+    }
+
+    document.getElementById("new_wa").value = "";
+    document.getElementById("new_name").value = "";
+    document.getElementById("new_event_date").value = "";
+
+    await loadConversations();
+    selectConv(wa_id);
+  };
+
+  document.getElementById("saveStatus").onclick = async () => {
+    if (!selected) return alert("Selecciona un lead.");
+    const status = document.getElementById("status").value;
+
+    const res = await fetch(`/api/conversations/${selected}/status`, {
+      method: "PATCH",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ status })
+    });
+
+    const out = await res.json().catch(()=>({}));
+    if (!res.ok) return alert(out.error || "Error guardando estado");
+
+    await loadConversations();
+  };
+
+  document.getElementById("saveEventDate").onclick = async () => {
+    if (!selected) return alert("Selecciona un lead.");
+    const event_date = document.getElementById("leadEventDate").value || null;
+
+    const res = await fetch(`/api/conversations/${selected}/event-date`, {
+      method: "PATCH",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ event_date })
+    });
+
+    const out = await res.json().catch(()=>({}));
+    if (!res.ok) return alert(out.error || "Error guardando fecha");
+
+    await loadConversations();
+  };
+
+  document.getElementById("saveNotes").onclick = async () => {
+    if (!selected) return alert("Selecciona un lead.");
+    const notes = document.getElementById("notes").value;
+
+    const res = await fetch(`/api/conversations/${selected}/notes`, {
+      method: "PATCH",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ notes })
+    });
+
+    const out = await res.json().catch(()=>({}));
+    if (!res.ok) return alert(out.error || "Error guardando notas");
+
+    await loadConversations();
+  };
+
+  document.getElementById("startSeq").onclick = async () => {
+    if (!selected) return alert("Selecciona un lead.");
+    const res = await fetch(`/api/sequences/start/${selected}`);
+    const data = await res.json().catch(()=>({}));
+
+    if (!res.ok){
+      alert(data.error || "Error iniciando secuencia");
+      return;
+    }
+    alert(`✅ Secuencia creada: ${data.created || 0}`);
+    await loadTasks();
+  };
+
+  document.getElementById("suggest").onclick = async () => {
+    if (!selected) return alert("Selecciona un lead.");
+    const last_text = document.getElementById("lastText").value.trim();
+
+    const res = await fetch("/api/ai/suggest", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ wa_id: selected, last_text, goal })
+    });
+
+    const data = await res.json().catch(()=>({}));
+
+    if (!res.ok){
+      document.getElementById("suggestion").textContent =
+        (data.error ? `${data.error}${data.detail ? " — " + data.detail : ""}` : "Error IA");
+      return;
+    }
+
+    document.getElementById("suggestion").textContent = data.suggestion || "";
+    await loadAiLogs();
+  };
+
+  document.getElementById("copySuggestion").onclick = async () => {
+    const text = document.getElementById("suggestion").textContent.trim();
+    if (!text) return alert("Primero genera una respuesta (IA).");
+    await navigator.clipboard.writeText(text);
+    alert("✅ Copiado. Pégalo en WhatsApp.");
+  };
+
+  document.getElementById("sendWA").onclick = () => {
+    if (!selected) return alert("Selecciona un lead.");
+    const text = document.getElementById("suggestion").textContent.trim();
+    if (!text) return alert("Primero genera una respuesta (IA).");
+    const url = `https://wa.me/${selected}?text=${encodeURIComponent(text)}`;
+    window.open(url, "_blank");
+  };
+
+  async function loadTasks(){
+    const res = await fetch("/api/followups");
+    const tasks = await res.json().catch(()=>[]);
+    const box = document.getElementById("tasks");
+
+    if (!tasks.length){
+      box.innerHTML = `<div class="muted">Sin pendientes por ahora.</div>`;
+      return;
+    }
+
+    box.innerHTML = tasks.map(t => {
+      const due = new Date(t.due_at).toLocaleString();
+      return `
+        <div class="task">
+          <div class="taskMeta">
+            <b>${escapeHtml(t.wa_id)}</b> • ${escapeHtml(t.intent || "followup")} • ${escapeHtml(due)}
+          </div>
+          <pre>${escapeHtml(t.message || "")}</pre>
+          <div class="taskBtns">
+            <button onclick="copyTask(${t.id})">Copiar</button>
+            <button class="btnPrimary" onclick="markTaskSent(${t.id})">Marcar enviado</button>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  window.copyTask = async (id) => {
+    const res = await fetch("/api/followups");
+    const tasks = await res.json().catch(()=>[]);
+    const t = tasks.find(x => x.id === id);
+    if (!t) return;
+    await navigator.clipboard.writeText(t.message || "");
+    alert("✅ Copiado. Pégalo en WhatsApp.");
+  };
+
+  window.markTaskSent = async (id) => {
+    await fetch(`/api/followups/${id}`, {
+      method: "PATCH",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ state: "sent" })
+    });
+    await loadTasks();
+  };
+
+  async function loadHistory(){
+    const box = document.getElementById("history");
+    if (!selected){
+      box.innerHTML = `<div class="muted">Selecciona un lead para ver historial.</div>`;
+      return;
+    }
+
+    const res = await fetch(`/messages/${selected}`);
+    const rows = await res.json().catch(()=>[]);
+
+    if (!rows.length){
+      box.innerHTML = `<div class="muted">Sin mensajes todavía.</div>`;
+      return;
+    }
+
+    box.innerHTML = rows.map(m => `
+      <div class="msg ${escapeHtml(m.direction || 'inbound')}">
+        <div>${escapeHtml(m.text || "")}</div>
+        <div class="msgMeta">${escapeHtml(m.direction || "")} • ${escapeHtml(fmtDate(m.timestamp))}</div>
+      </div>
+    `).join("");
+  }
+
+  async function loadAiLogs(){
+    const box = document.getElementById("aiLogs");
+    if (!selected){
+      box.innerHTML = `<div class="muted">Selecciona un lead para ver logs IA.</div>`;
+      return;
+    }
+
+    const res = await fetch(`/api/ai/logs/${selected}`);
+    const rows = await res.json().catch(()=>[]);
+
+    if (!rows.length){
+      box.innerHTML = `<div class="muted">Sin logs IA todavía.</div>`;
+      return;
+    }
+
+    box.innerHTML = rows.map(l => `
+      <div class="logItem">
+        <div class="muted">${escapeHtml(l.intent || "unknown")} • ${escapeHtml(l.variant || "standard")} • ${escapeHtml(fmtDate(l.created_at))}</div>
+        <pre style="margin-top:10px;">${escapeHtml(l.suggestion || "")}</pre>
+      </div>
+    `).join("");
+  }
+
+  document.getElementById("refreshHistory").onclick = loadHistory;
+  document.getElementById("refreshAiLogs").onclick = loadAiLogs;
+
+  document.getElementById("addInboundMsg").onclick = async () => {
+    if (!selected) return alert("Selecciona un lead.");
+    const text = prompt("Pega el mensaje inbound del lead:");
+    if (!text) return;
+
+    const res = await fetch("/api/messages", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        wa_id: selected,
+        direction: "inbound",
+        type: "text",
+        text,
+        timestamp: Date.now()
+      })
+    });
+
+    const out = await res.json().catch(()=>({}));
+    if (!res.ok) return alert(out.error || "Error guardando mensaje");
+
+    await loadConversations();
+    await loadHistory();
+  };
+
+  document.getElementById("refreshBtn").onclick = async () => {
+    await loadConversations();
+    await loadTasks();
+    if (selected) {
+      await loadHistory();
+      await loadAiLogs();
+    }
+  };
+
+  showLeadView();
+  loadConversations();
+  loadTasks();
+  setInterval(loadTasks, 30000);
+</script>
+</body>
+</html>

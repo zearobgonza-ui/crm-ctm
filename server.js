@@ -12,8 +12,10 @@ import {
   insertFollowup,
   insertAiLog
 } from "./db.js";
-
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const app = express();
+app.use(express.static(path.join(__dirname, "public")));
 const upload = multer({ storage: multer.memoryStorage() });
 
 app.use(express.json({ limit: "2mb" }));
@@ -587,6 +589,7 @@ app.post("/webhook/inbound", (req, res) => {
 // ============================
 // START
 // ============================
+app.get("/", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Servidor CRM activo en puerto ` + PORT);
 });

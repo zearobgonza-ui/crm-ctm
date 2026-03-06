@@ -588,5 +588,5 @@ app.post("/webhook/inbound", (req, res) => {
 // START
 // ============================
 app.listen(PORT, () => {
-  console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`Servidor CRM activo en puerto ` + PORT);
 });

@@ -2,6 +2,8 @@ import "dotenv/config";
 import express from "express";
 import multer from "multer";
 import { parse } from "csv-parse/sync";
+import path from "path";
+import { fileURLToPath } from "url";
 
 import {
   db,
@@ -15,11 +17,13 @@ import {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
-app.use(express.static(path.join(__dirname, "public")));
 const upload = multer({ storage: multer.memoryStorage() });
 
 app.use(express.json({ limit: "2mb" }));
-app.use(express.static("public"));
+app.use(express.static(path.join(__dirname, "public")));
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
 
 const PORT = process.env.PORT || 3000;
 

@@ -12,7 +12,6 @@ import {
   getConversation,
   getMessagesByWaId,
   insertFollowup,
-  insertAiLog
 } from "./db.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
